@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#fff7f0">
+<title>宝宝成长册 · 原型 v3</title>
+<style>
+  :root{
+    --bg:#fff7f0; --card:#ffffff; --ink:#3d2b1f; --sub:#8b7566;
+    --line:#f0e2d6; --shadow:0 2px 10px rgba(140,100,60,.08);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{
+    background:var(--bg); color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    max-width:520px;margin:0 auto;padding-bottom:96px;
+  }
+  header{
+    position:sticky;top:0;z-index:10;background:rgba(255,247,240,.94);
+    backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--line);
+    padding:14px 16px 0;
+  }
+  h1{margin:0 0 10px;font-size:19px;letter-spacing:.5px}
+  h1 span{font-size:12px;color:var(--sub);font-weight:400;margin-left:6px}
+  .tabs{display:flex;gap:8px;padding-bottom:10px;overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--sub);
+    padding:6px 14px;border-radius:999px;font-size:13px;cursor:pointer;transition:.15s;
+  }
+  .tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .toolbar{display:flex;gap:14px;justify-content:flex-end;padding:8px 16px 0}
+  .mini{
+    border:none;background:none;color:var(--sub);font-size:12px;cursor:pointer;
+    text-decoration:underline;text-underline-offset:3px;padding:4px
+  }
+  .banner{
+    background:#fdeadd;color:#8a5a1f;font-size:12px;line-height:1.6;
+    padding:9px 16px;border-bottom:1px solid var(--line)
+  }
+  main{padding:14px 16px 0}
+  .day-label{font-size:12px;color:var(--sub);margin:18px 0 8px;letter-spacing:1px}
+  .card{
+    background:var(--card);border-radius:16px;padding:12px;margin-bottom:12px;
+    box-shadow:var(--shadow);position:relative;animation:in .25s ease both;
+  }
+  @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .meta{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .badge{font-size:11px;padding:2px 8px;border-radius:999px;background:#fdeadd;color:#b06a2c}
+  .badge.b{background:#e6f2ec;color:#3f7d5f}
+  .badge.s{background:#eaedf6;color:#5a6a92}
+  .age{font-size:11px;color:var(--sub)}
+  .txt{white-space:pre-wrap;word-break:break-word}
+  .shots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+  .shots img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;display:block;background:#f5ede6}
+  .del{
+    position:absolute;top:8px;right:8px;border:none;background:none;color:#cbb8a8;
+    font-size:16px;line-height:1;padding:6px;cursor:pointer
+  }
+  .empty{text-align:center;color:var(--sub);padding:60px 20px;font-size:14px}
+  .fab{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:20;
+    width:calc(100% - 32px);max-width:488px;height:52px;border:none;border-radius:26px;
+    background:linear-gradient(135deg,#f2a25c,#e88f4a);color:#fff;font-size:16px;font-weight:600;
+    box-shadow:0 8px 24px rgba(232,143,74,.35);cursor:pointer
+  }
+  .sheet{position:fixed;inset:0;z-index:30;display:none;background:rgba(60,40,25,.35)}
+  .sheet.on{display:block}
+  .panel{
+    position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;
+    padding:18px 18px 26px;max-width:520px;margin:0 auto;animation:up .25s ease both;
+    max-height:92vh;overflow:auto
+  }
+  @keyframes up{from{transform:translateY(30px)}to{transform:none}}
+  .panel h2{margin:0 0 14px;font-size:16px}
+  .row{margin-bottom:12px}
+  label{display:block;font-size:12px;color:var(--sub);margin-bottom:5px}
+  input[type=date],input[type=text],select,textarea{
+    width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;
+    font:15px/1.5 inherit;color:var(--ink);background:#fffdfb;outline:none
+  }
+  textarea{min-height:96px;resize:vertical}
+  input[type=file]{
+    width:100%;border:1px dashed var(--line);border-radius:12px;padding:14px;
+    font-size:13px;color:var(--sub);background:#fffdfb
+  }
+  .preview{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .preview img{width:64px;height:64px;object-fit:cover;border-radius:8px}
+  .save{
+    width:100%;height:48px;border:none;border-radius:14px;margin-top:6px;
+    background:var(--ink);color:#fff;font-size:15px;font-weight:600;cursor:pointer
+  }
+  .hint{font-size:12px;color:var(--sub);margin-top:10px;line-height:1.7}
+  .cfgrow{display:grid;grid-template-columns:1fr 130px;gap:8px;align-items:end;margin-bottom:12px}
+  .cfgrow label{margin-bottom:4px}
+  .toast{
+    position:fixed;left:50%;bottom:100px;transform:translateX(-50%);z-index:40;
+    background:rgba(61,43,31,.92);color:#fff;padding:9px 16px;border-radius:999px;
+    font-size:13px;opacity:0;transition:.25s;pointer-events:none
+  }
+  .toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <h1>宝宝成长册<span>原型 v3 · 数据只存在这台设备</span></h1>
+  <div class="tabs" id="tabs"></div>
+</header>
+
+<div class="banner" id="banner" hidden></div>
+
+<div class="toolbar">
+  <button class="mini" id="btnCfg">改名字/生日</button>
+  <button class="mini" id="btnExport">导出备份</button>
+  <button class="mini" id="btnImport">导入备份</button>
+  <input type="file" id="fileImport" accept="application/json" hidden>
+</div>
+
+<main id="list"></main>
+
+<button class="fab" id="btnAdd">＋ 记一条</button>
+
+<!-- 新建记录 -->
+<div class="sheet" id="sheet">
+  <div class="panel">
+    <h2>新记录</h2>
+    <div class="row">
+      <label>是谁</label>
+      <select id="fKid"></select>
+    </div>
+    <div class="row">
+      <label>日期</label>
+      <input type="date" id="fDate">
+    </div>
+    <div class="row">
+      <label>写点什么</label>
+      <textarea id="fText" placeholder="例：今天第一次自己扶着沙发站起来，笑得特别得意。"></textarea>
+    </div>
+    <div class="row">
+      <label>照片（可多选，会自动压缩）</label>
+      <input type="file" id="fPhotos" accept="image/*" multiple>
+      <div class="preview" id="preview"></div>
+    </div>
+    <button class="save" id="btnSave">保存</button>
+    <p class="hint">数据存在这台设备的浏览器里。换手机前点上方“导出备份”，把 json 文件带走。</p>
+  </div>
+</div>
+
+<!-- 设置 -->
+<div class="sheet" id="sheetCfg">
+  <div class="panel">
+    <h2>名字和生日</h2>
+    <p class="hint" style="margin:0 0 14px">名字随便改；生日用来算“出生多少天 / 几个月”。合照那一栏没有生日。</p>
+    <div id="cfgList"></div>
+    <button class="save" id="btnCfgSave">保存</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DB_NAME='growth-book', STORE='entries', KIDS_KEY='gb-kids', SEED_KEY='gb-seeded', LS_ENTRIES='gb-entries';
+
+const DEFAULT_KIDS=[
+  {id:'k1', name:'大宝', birth:'2023-05-12', cls:''},
+  {id:'k2', name:'二宝', birth:'2025-11-03', cls:'b'},
+  {id:'k3', name:'合照', birth:'',           cls:'s'}
+];
+
+let KIDS = loadKids();
+let filter='all', pendingPhotos=[];
+let BACKEND='mem';                 // idb | ls | mem
+const MEM = new Map();
+
+/* ---------- 名单（可改名） ---------- */
+function loadKids(){
+  try{
+    const s=localStorage.getItem(KIDS_KEY);
+    if(s){ const a=JSON.parse(s); if(Array.isArray(a)&&a.length) return a; }
+  }catch(e){}
+  return DEFAULT_KIDS.map(k=>({...k}));
+}
+function saveKids(){
+  try{ localStorage.setItem(KIDS_KEY, JSON.stringify(KIDS)); }catch(e){}
+}
+
+/* ---------- 存储后端：IndexedDB → localStorage → 内存 ---------- */
+function openDB(){
+  return new Promise((res,rej)=>{
+    let r;
+    try{ r=indexedDB.open(DB_NAME,1); }catch(e){ rej(e); return; }
+    r.onupgradeneeded=()=>{ const db=r.result; if(!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE,{keyPath:'id'}); };
+    r.onsuccess=()=>res(r.result);
+    r.onerror=()=>rej(r.error||new Error('idb open failed'));
+    r.onblocked=()=>rej(new Error('idb blocked'));
+  });
+}
+
+async function initBackend(){
+  if(typeof indexedDB!=='undefined'){
+    try{ await openDB(); BACKEND='idb'; return; }catch(e){ /* 落到下一层 */ }
+  }
+  try{
+    localStorage.setItem('__probe__','1');
+    localStorage.removeItem('__probe__');
+    BACKEND='ls'; return;
+  }catch(e){}
+  BACKEND='mem';
+}
+
+function sortRows(a){ return a.sort((x,y)=>(y.date+y.id).localeCompare(x.date+x.id)); }
+function lsAll(){
+  try{ const a=JSON.parse(localStorage.getItem(LS_ENTRIES)||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; }
+}
+function lsSave(arr){
+  try{ localStorage.setItem(LS_ENTRIES, JSON.stringify(arr)); return true; }catch(e){ return false; }
+}
+
+async function allEntries(){
+  if(BACKEND==='idb'){
+    const db=await openDB();
+    return new Promise((res,rej)=>{
+      const tx=db.transaction(STORE,'readonly').objectStore(STORE).getAll();
+      tx.onsuccess=()=>res(sortRows(tx.result||[]));
+      tx.onerror=()=>rej(tx.error);
+    });
+  }
+  if(BACKEND==='ls') return sortRows(lsAll().slice());
+  return sortRows([...MEM.values()]);
+}
+
+async function putEntry(e){
+  if(BACKEND==='idb'){
+    const db=await openDB();
+    return new Promise((res,rej)=>{
+      const tx=db.transaction(STORE,'readwrite').objectStore(STORE).put(e);
+      tx.onsuccess=()=>res(); tx.onerror=()=>rej(tx.error);
+    });
+  }
+  if(BACKEND==='ls'){
+    const a=lsAll().filter(x=>x.id!==e.id); a.push(e); lsSave(a); return;
+  }
+  MEM.set(e.id,e);
+}
+
+async function delEntry(id){
+  if(BACKEND==='idb'){
+    const db=await openDB();
+    return new Promise((res,rej)=>{
+      const tx=db.transaction(STORE,'readwrite').objectStore(STORE).delete(id);
+      tx.onsuccess=()=>res(); tx.onerror=()=>rej(tx.error);
+    });
+  }
+  if(BACKEND==='ls'){ lsSave(lsAll().filter(x=>x.id!==id)); return; }
+  MEM.delete(id);
+}
+
+function showBanner(){
+  if(BACKEND==='idb') return;
+  const b=document.getElementById('banner');
+  b.hidden=false;
+  b.textContent = BACKEND==='ls'
+    ? '提示：这个打开方式禁用了本地数据库，已改用浏览器存储（数据能存住，但不如下面方式稳）。建议直接双击 html 文件用 Edge / Chrome 打开。'
+    : '提示：当前是预览沙箱，页面无法保存数据，刷新后会丢。要真正试用，请直接双击这个 html 文件用浏览器打开。';
+}
+
+/* ---------- 工具 ---------- */
+const today=()=>{
+  const d=new Date(), p=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+};
+function ageText(kidId,dateStr){
+  const k=KIDS.find(x=>x.id===kidId);
+  if(!k || !k.birth) return '';
+  const b=new Date(k.birth), d=new Date(dateStr);
+  const days=Math.floor((d-b)/86400000);
+  if(!isFinite(days) || days<0) return '';
+  if(days<60) return `出生 ${days} 天`;
+  const months=Math.floor(days/30.44);
+  if(months<24) return `${months} 个月`;
+  return `${Math.floor(months/12)} 岁 ${months%12} 个月`;
+}
+function fmtDate(s){
+  const d=new Date(s);
+  if(isNaN(d)) return s;
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),1600);
+}
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function esc(s){ return String(s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+
+function placeholder(color,label){
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="${color}"/><text x="150" y="170" font-size="96" text-anchor="middle" fill="rgba(255,255,255,.92)">${label}</text></svg>`;
+  return 'data:image/svg+xml,'+encodeURIComponent(svg);
+}
+
+/* ---------- 首屏示例数据 ---------- */
+async function seedIfEmpty(){
+  const rows=await allEntries();
+  if(rows.length) return;
+  try{ if(localStorage.getItem(SEED_KEY)) return; }catch(e){}
+  const demo=[
+    {kid:'k1',date:'2026-09-18',text:'第一次自己扶着沙发站起来，站了大概十秒，然后一屁股坐回去，笑得特别得意。',photos:[placeholder('#f2a25c','🧸'),placeholder('#e8b48a','🍼')]},
+    {kid:'k1',date:'2026-10-02',text:'会叫“爸爸”了，一天叫四十遍，看到狗也叫爸爸。',photos:[placeholder('#d8a06a','👶')]},
+    {kid:'k2',date:'2026-10-11',text:'今天满月，体重 4.8 公斤。比哥哥同期重半斤。',photos:[placeholder('#8fc4a8','🌱')]},
+    {kid:'k2',date:'2026-10-20',text:'第一次笑出声，逗一下就咯咯咯。',photos:[placeholder('#a8d4bd','😊'),placeholder('#c8e2d2','☀️')]},
+    {kid:'k3',date:'2026-10-01',text:'国庆全家出门，第一次带两个一起拍合照，老大的手一直抓着弟弟的脚。',photos:[placeholder('#9fb6d8','👨‍👩‍👦‍👦')]}
+  ];
+  for(const d of demo) await putEntry({id:uid(),...d,created:Date.now()});
+  try{ localStorage.setItem(SEED_KEY,'1'); }catch(e){}
+}
+
+/* ---------- 渲染 ---------- */
+function renderTabs(){
+  const el=document.getElementById('tabs');
+  const items=[{id:'all',name:'全部'},...KIDS.map(k=>({id:k.id,name:k.name}))];
+  el.innerHTML=items.map(i=>`<button class="tab ${filter===i.id?'on':''}" data-id="${i.id}">${esc(i.name)}</button>`).join('');
+  el.querySelectorAll('.tab').forEach(b=>{
+    b.onclick=()=>{ filter=b.dataset.id; renderTabs(); renderList(); };
+  });
+}
+
+async function renderList(){
+  const list=document.getElementById('list');
+  let rows;
+  try{ rows=await allEntries(); }
+  catch(e){ list.innerHTML='<div class="empty">读取数据时出错：'+esc(e.message||e)+'</div>'; return; }
+  if(filter!=='all') rows=rows.filter(r=>r.kid===filter);
+  if(!rows.length){
+    list.innerHTML='<div class="empty">这里还空着<br>点下面的按钮，记第一条</div>';
+    return;
+  }
+  let html='',lastDay='';
+  for(const r of rows){
+    if(r.date!==lastDay){ lastDay=r.date; html+=`<div class="day-label">${fmtDate(r.date)}</div>`; }
+    const k=KIDS.find(x=>x.id===r.kid)||{name:'?',cls:''};
+    const shots=(r.photos||[]).map(p=>`<img src="${p}" alt="" loading="lazy">`).join('');
+    html+=`<div class="card">
+      <button class="del" data-id="${esc(r.id)}" title="删除">✕</button>
+      <div class="meta">
+        <span class="badge ${k.cls||''}">${esc(k.name)}</span>
+        <span class="age">${ageText(r.kid,r.date)}</span>
+      </div>
+      <div class="txt">${esc(r.text)}</div>
+      ${shots?`<div class="shots">${shots}</div>`:''}
+    </div>`;
+  }
+  list.innerHTML=html;
+  list.querySelectorAll('.del').forEach(b=>{
+    b.onclick=async()=>{
+      if(!confirm('删掉这条？删了不能恢复。')) return;
+      try{ await delEntry(b.dataset.id); renderList(); toast('已删除'); }
+      catch(e){ toast('删不掉：'+(e.message||e)); }
+    };
+  });
+}
+
+/* ---------- 新增 ---------- */
+function openSheet(){
+  document.getElementById('fKid').innerHTML=KIDS.map(k=>{
+    const a=ageText(k.id,today());
+    return `<option value="${esc(k.id)}">${esc(k.name)}${a?'（'+a+'）':''}</option>`;
+  }).join('');
+  document.getElementById('fDate').value=today();
+  document.getElementById('fText').value='';
+  document.getElementById('fPhotos').value='';
+  document.getElementById('preview').innerHTML='';
+  pendingPhotos=[];
+  document.getElementById('sheet').classList.add('on');
+}
+function closeSheet(){ document.getElementById('sheet').classList.remove('on'); }
+
+function shrink(file, max=1400, q=.82){
+  return new Promise(res=>{
+    const img=new Image();
+    img.onload=()=>{
+      let {width:w,height:h}=img;
+      const s=Math.min(1,max/Math.max(w,h));
+      const c=document.createElement('canvas');
+      c.width=Math.round(w*s); c.height=Math.round(h*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      res(c.toDataURL('image/jpeg',q));
+    };
+    img.onerror=()=>res('');
+    img.src=URL.createObjectURL(file);
+  });
+}
+
+document.getElementById('fPhotos').onchange=async ev=>{
+  const files=[...ev.target.files].slice(0,9);
+  pendingPhotos=[];
+  document.getElementById('preview').innerHTML='<span style="font-size:12px;color:#8b7566">处理中…</span>';
+  for(const f of files){
+    const d=await shrink(f);
+    if(d) pendingPhotos.push(d);
+  }
+  document.getElementById('preview').innerHTML=pendingPhotos.map(p=>`<img src="${p}">`).join('');
+};
+
+document.getElementById('btnSave').onclick=async()=>{
+  const text=document.getElementById('fText').value.trim();
+  if(!text){ toast('写一句话再保存'); return; }
+  const row={
+    id:uid(),
+    kid:document.getElementById('fKid').value,
+    date:document.getElementById('fDate').value||today(),
+    text, photos:pendingPhotos.slice(), created:Date.now()
+  };
+  try{
+    await putEntry(row);
+    closeSheet(); renderList(); toast('记好了');
+  }catch(e){ toast('没存上：'+(e.message||e)); }
+};
+
+document.getElementById('btnAdd').onclick=openSheet;
+document.getElementById('sheet').onclick=e=>{ if(e.target.id==='sheet') closeSheet(); };
+document.getElementById('sheetCfg').onclick=e=>{ if(e.target.id==='sheetCfg') closeSettings(); };
+
+/* ---------- 设置：改名/生日 ---------- */
+function openSettings(){
+  const box=document.getElementById('cfgList');
+  box.innerHTML=KIDS.map((k,i)=>`
+    <div class="cfgrow">
+      <div>
+        <label>名称</label>
+        <input type="text" data-i="${i}" data-f="name" value="${esc(k.name)}" maxlength="8">
+      </div>
+      <div>
+        <label>生日</label>
+        <input type="date" data-i="${i}" data-f="birth" value="${esc(k.birth||'')}" ${k.birth===''?'disabled':''}>
+      </div>
+    </div>`).join('');
+  document.getElementById('sheetCfg').classList.add('on');
+}
+function closeSettings(){ document.getElementById('sheetCfg').classList.remove('on'); }
+
+document.getElementById('btnCfg').onclick=openSettings;
+document.getElementById('btnCfgSave').onclick=()=>{
+  document.querySelectorAll('#cfgList input').forEach(inp=>{
+    const i=+inp.dataset.i, f=inp.dataset.f;
+    if(f==='birth' && KIDS[i].birth==='') return;
+    const v=inp.value.trim();
+    if(f==='name'){ if(v) KIDS[i].name=v; }
+    else KIDS[i].birth=v;
+  });
+  saveKids(); closeSettings(); renderTabs(); renderList(); toast('已保存');
+};
+
+/* ---------- 备份 ---------- */
+document.getElementById('btnExport').onclick=async()=>{
+  const rows=await allEntries();
+  const data={kids:KIDS,entries:rows,exported:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`宝宝成长册-备份-${today()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  toast('已导出 '+rows.length+' 条');
+};
+document.getElementById('btnImport').onclick=()=>document.getElementById('fileImport').click();
+document.getElementById('fileImport').onchange=async ev=>{
+  const f=ev.target.files[0]; if(!f) return;
+  let data;
+  try{ data=JSON.parse(await f.text()); }catch(e){ toast('这个文件读不出来'); return; }
+  if(!Array.isArray(data.entries) || !data.entries.length){ toast('文件里没有记录'); return; }
+  if(!confirm(`导入 ${data.entries.length} 条记录？（不会删除已有记录）`)) return;
+  if(Array.isArray(data.kids)&&data.kids.length){
+    if(confirm('备份里带了名字和生日，要覆盖当前设置吗？')){ KIDS=data.kids; saveKids(); }
+  }
+  let n=0;
+  for(const e of data.entries){ try{ await putEntry(e); n++; }catch(err){} }
+  renderTabs(); renderList(); toast(`导入 ${n} 条`);
+};
+
+/* ---------- 启动 ---------- */
+(async()=>{
+  renderTabs();              // 先把界面骨架画出来，任何异常都不会导致白屏
+  await initBackend();
+  showBanner();
+  try{ await seedIfEmpty(); }catch(e){}
+  await renderList();
+})();
+</script>
+</body>
+</html>

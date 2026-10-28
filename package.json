@@ -1,0 +1,18 @@
+{
+  "name": "babybook",
+  "version": "0.1.0",
+  "private": true,
+  "description": "宝宝成长册 —— 单文件网页 + Capacitor 打包成安卓 APK",
+  "scripts": {
+    "add:android": "cap add android",
+    "sync": "cap sync android",
+    "open": "cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/core": "^8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3"
+  }
+}

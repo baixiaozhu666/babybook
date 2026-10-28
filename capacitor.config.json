@@ -1,0 +1,9 @@
+{
+  "appId": "com.babybook.growth",
+  "appName": "宝宝成长册",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false
+  }
+}
