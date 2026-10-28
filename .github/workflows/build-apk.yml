@@ -34,11 +34,30 @@ jobs:
       - name: 把 www 里的网页拷进安卓工程
         run: npx cap sync android
 
+      # 固定签名：把上次构建生成的 debug.keystore 缓存起来复用。
+      # 这样每次编译的签名一致，新版本才能直接覆盖安装，不用卸载。
+      - name: 取回固定签名文件
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: android-debug-keystore-v1
+
+      # 安卓 15 起，targetSdk 35+ 会强制“内容延伸到状态栏下面”，
+      # 表现为标题被时间和电量压住。降到 34 就不强制，系统自动留出状态栏高度。
+      - name: 让标题不被状态栏压住
+        run: |
+          sed -i 's/targetSdkVersion = 36/targetSdkVersion = 34/' android/variables.gradle
+          grep targetSdkVersion android/variables.gradle
+
       - name: 编译 debug APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace
+
+      # 打印签名指纹，前后两次构建对比这几个字符，就知道签名是否稳定
+      - name: 打印签名指纹
+        run: keytool -list -v -keystore ~/.android/debug.keystore -storepass android | grep -E "SHA1|SHA-1" || true
 
       - name: 上传 apk 成品
         uses: actions/upload-artifact@v4
